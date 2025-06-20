@@ -1,0 +1,20 @@
+# frontend/Dockerfile.dev
+FROM node:23-alpine3.22
+
+WORKDIR /app
+
+# Copiamos package.json y package-lock.json
+COPY package*.json ./
+
+# Instalamos dependencias
+RUN npm install
+
+# Copiamos el resto del código
+COPY src/ ./src/
+COPY public/ ./public/
+
+# Exponemos el puerto
+EXPOSE 3000
+
+# Arrancamos React en modo desarrollo
+CMD ["npm", "start"]

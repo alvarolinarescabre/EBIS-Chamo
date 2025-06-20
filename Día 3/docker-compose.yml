@@ -1,0 +1,39 @@
+services:
+  db:
+    image: mysql:8
+    command: ["mysqld", "--mysql-native-password=ON"]
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: toortoor
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./init/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    networks:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: toortoor
+    ports:
+      - "8080:80"
+    networks:
+      - backend
+      - frontend
+
+volumes:
+  db-data:
+
+
+networks:
+  backend:    
+    driver: bridge
+    internal: true
+  frontend:
+    driver: bridge
+    internal: false

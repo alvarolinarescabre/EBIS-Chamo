@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    image: frontend:1.0.0
+    ports:
+      - "80:80"                     # servimos build estático en NGINX
+    environment:
+      - NODE_ENV=production
+    volumes: []                     # sin mounts
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.prod
+    image: myorg/api:1.0.0
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=db
+    volumes: []                     # sin mounts
+    networks:
+      - app-network
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: rootpass
+      POSTGRES_DB: ejemplo
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./db/init/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
